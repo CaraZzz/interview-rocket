@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Interview Rocket — Your prep workspace</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --ink:#1B2430;
+    --mist:#F2F4F3;
+    --panel:#FFFFFF;
+    --teal:#2F6F63;
+    --teal-soft:#E4EEEC;
+    --amber:#C97B2E;
+    --line:#E1E5E4;
+    --muted:#6B7680;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; height:100%; }
+  body {
+    font-family:'Inter', sans-serif;
+    background:var(--mist);
+    color:var(--ink);
+  }
+  button { font-family:inherit; cursor:pointer; }
+  textarea::placeholder { color:#8B96A3; }
+  textarea:focus, button:focus-visible {
+    outline:2px solid var(--teal);
+    outline-offset:2px;
+  }
+
+  .app { display:flex; min-height:100vh; }
+
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    flex-shrink:0;
+    width:260px;
+    background:var(--ink);
+    color:#EDEFF1;
+    display:flex;
+    flex-direction:column;
+    padding:20px 16px;
+    transition:width .2s ease;
+    gap:20px;
+  }
+  .sidebar.collapsed{ width:56px; }
+  .sidebar.collapsed .sidebar-content{ display:none; }
+
+  .sidebar-header{
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .brand-mark{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; letter-spacing:.08em; color:var(--teal);
+    border:1px solid var(--teal); border-radius:4px;
+    display:inline-block; padding:2px 6px; margin-bottom:10px;
+  }
+  .brand-title{
+    font-family:'Fraunces', serif; font-size:18px; font-weight:600; line-height:1.2;
+  }
+  .brand-sub{ font-size:12px; color:#9AA5AF; margin-top:2px; }
+
+  .collapse-btn{
+    background:transparent; border:1px solid #3A4552; color:#EDEFF1;
+    border-radius:6px; width:26px; height:26px; line-height:1; font-size:14px;
+  }
+
+  .sidebar-content{ display:flex; flex-direction:column; gap:20px; flex:1; min-height:0; }
+
+  .nav{ display:flex; flex-direction:column; gap:4px; }
+  .nav-item{
+    display:flex; justify-content:space-between; align-items:center;
+    background:transparent; border:none; color:#C3CAD1;
+    padding:9px 10px; border-radius:7px; font-size:13.5px; text-align:left;
+    width:100%;
+  }
+  .nav-item.active{ background:#26313F; color:#fff; }
+  .nav-label{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .nav-count{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:#7C8794;
+    background:#1E2733; border-radius:10px; padding:1px 7px;
+  }
+  .nav-item.active .nav-count{ color:var(--teal); background:#0F1A17; }
+
+  .add-section-btn{
+    background:transparent; border:1px dashed #3A4552; color:#9AA5AF;
+    border-radius:7px; padding:8px 10px; font-size:12.5px; text-align:left;
+  }
+
+  .mission-clock{
+    margin-top:auto; border-top:1px solid #2C3844; padding-top:14px;
+  }
+  .mission-clock-label{
+    font-size:10.5px; letter-spacing:.08em; color:#7C8794; text-transform:uppercase;
+  }
+  .mission-clock-value{
+    font-family:'JetBrains Mono', monospace; font-size:26px; color:var(--teal);
+    margin-top:4px; letter-spacing:.02em;
+  }
+  .mission-clock-sub{ font-size:11px; color:#7C8794; margin-top:2px; }
+
+  /* ---------- main ---------- */
+  .main{ flex:1; padding:32px 40px; overflow-y:auto; }
+  .main-header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:24px; border-bottom:1px solid var(--line); padding-bottom:16px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.1em;
+    color:var(--amber); margin-bottom:6px;
+  }
+  h1.title{
+    font-family:'Fraunces', serif; font-weight:600; font-size:30px; margin:0; color:var(--ink);
+  }
+  .save-indicator{
+    font-size:12px; color:var(--muted); font-family:'JetBrains Mono', monospace;
+  }
+
+  .entry-list{ display:flex; flex-direction:column; gap:16px; max-width:720px; }
+  .entry-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:16px 18px 14px;
+  }
+  .entry-top-row{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;
+  }
+  .entry-index{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted); letter-spacing:.05em;
+  }
+  .delete-btn{
+    background:transparent; border:none; color:var(--muted); font-size:12px; padding:2px 4px;
+  }
+  textarea.entry-text{
+    width:100%; border:none; resize:vertical; font-family:'Inter', sans-serif;
+    font-size:14.5px; line-height:1.55; color:var(--ink); background:transparent;
+    padding:0; min-height:90px;
+  }
+  .entry-footer{
+    display:flex; gap:6px; margin-top:10px; font-size:12px; color:var(--muted);
+    font-family:'JetBrains Mono', monospace; border-top:1px solid var(--line); padding-top:8px;
+  }
+  .dot{ color:var(--line); }
+
+  .add-entry-btn{
+    align-self:flex-start; background:var(--teal-soft); border:1px solid var(--teal);
+    color:var(--teal); border-radius:8px; padding:9px 16px; font-size:13.5px; font-weight:500;
+  }
+  .delete-section-btn{
+    align-self:flex-start; background:transparent; border:none; color:var(--muted);
+    font-size:12px; margin-top:6px; text-decoration:underline; text-underline-offset:2px;
+  }
+
+  .footer-note{
+    max-width:720px; margin-top:24px; font-size:11.5px; color:var(--muted);
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  @media (max-width: 720px){
+    .sidebar{ width:210px; }
+    .main{ padding:24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var WORDS_PER_MINUTE = 135;
+  var STORAGE_KEY = "interview-cheatsheet:data";
+
+  var DEFAULT_SECTIONS = [
+    { id: "about-me", title: "About me", entries: [{ id: "am-1", text: "" }] },
+    { id: "story-bank", title: "Story bank", entries: [{ id: "sb-1", text: "" }] },
+    { id: "technical", title: "Technical questions", entries: [{ id: "tq-1", text: "" }] }
+  ];
+
+  var PLACEHOLDERS = {
+    "about-me": "Write a 60–90 second summary of your background, what you do now, and the thread that connects it...",
+    "story-bank": "Set the scene, name the challenge, walk through what you did, and land on the result. One story per box.",
+    "technical": "Sketch how you'd answer — key concepts, trade-offs, the example you'd reach for."
+  };
+
+  function uid(){ return Math.random().toString(36).slice(2, 10); }
+
+  function countWords(text){
+    var trimmed = (text || "").trim();
+    if (!trimmed) return 0;
+    return trimmed.split(/\s+/).length;
+  }
+
+  function formatSeconds(words){
+    var totalSeconds = Math.round((words / WORDS_PER_MINUTE) * 60);
+    if (totalSeconds < 60) return totalSeconds + " sec";
+    var m = Math.floor(totalSeconds / 60);
+    var s = totalSeconds % 60;
+    return s === 0 ? (m + " min") : (m + " min " + s + " sec");
+  }
+
+  function formatClock(totalWords){
+    var totalSeconds = Math.round((totalWords / WORDS_PER_MINUTE) * 60);
+    var m = Math.floor(totalSeconds / 60);
+    var s = totalSeconds % 60;
+    return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+  }
+
+  function loadState(){
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw){
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.sections) && parsed.sections.length > 0){
+          return parsed.sections;
+        }
+      }
+    } catch(e){ /* fall through to defaults */ }
+    return JSON.parse(JSON.stringify(DEFAULT_SECTIONS));
+  }
+
+  var state = {
+    sections: loadState(),
+    activeId: null,
+    collapsed: false,
+    saveState: "idle"
+  };
+  state.activeId = state.sections[0].id;
+
+  var saveTimeout = null;
+  function persist(){
+    state.saveState = "saving";
+    renderSaveIndicator();
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(function(){
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ sections: state.sections }));
+        state.saveState = "saved";
+      } catch(e){
+        state.saveState = "idle";
+      }
+      renderSaveIndicator();
+    }, 400);
+  }
+
+  function getActiveSection(){
+    for (var i = 0; i < state.sections.length; i++){
+      if (state.sections[i].id === state.activeId) return state.sections[i];
+    }
+    return state.sections[0];
+  }
+
+  function sectionWordTotal(s){
+    return s.entries.reduce(function(sum, e){ return sum + countWords(e.text); }, 0);
+  }
+
+  function allWordsTotal(){
+    return state.sections.reduce(function(sum, s){ return sum + sectionWordTotal(s); }, 0);
+  }
+
+  // ---- mutators ----
+  function updateEntry(sectionId, entryId, text){
+    state.sections.forEach(function(s){
+      if (s.id !== sectionId) return;
+      s.entries.forEach(function(e){
+        if (e.id === entryId) e.text = text;
+      });
+    });
+    persist();
+    renderFooters();
+    renderNavCounts();
+    renderMissionClock();
+  }
+
+  function addEntry(sectionId){
+    state.sections.forEach(function(s){
+      if (s.id === sectionId) s.entries.push({ id: uid(), text: "" });
+    });
+    persist();
+    render();
+  }
+
+  function deleteEntry(sectionId, entryId){
+    state.sections.forEach(function(s){
+      if (s.id === sectionId) s.entries = s.entries.filter(function(e){ return e.id !== entryId; });
+    });
+    persist();
+    render();
+  }
+
+  function addSection(){
+    var title = window.prompt("Name this section");
+    if (!title || !title.trim()) return;
+    var newSection = { id: uid(), title: title.trim(), entries: [{ id: uid(), text: "" }] };
+    state.sections.push(newSection);
+    state.activeId = newSection.id;
+    persist();
+    render();
+  }
+
+  function deleteSection(sectionId){
+    if (state.sections.length <= 1) return;
+    state.sections = state.sections.filter(function(s){ return s.id !== sectionId; });
+    if (state.activeId === sectionId) state.activeId = state.sections[0].id;
+    persist();
+    render();
+  }
+
+  function setActive(id){
+    state.activeId = id;
+    render();
+  }
+
+  function toggleCollapsed(){
+    state.collapsed = !state.collapsed;
+    render();
+  }
+
+  // ---- rendering ----
+  var app = document.getElementById("app");
+
+  function el(tag, attrs, children){
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if (k === "class") node.className = attrs[k];
+      else if (k === "text") node.textContent = attrs[k];
+      else if (k.indexOf("on") === 0) { /* handled separately */ }
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function(c){ if (c) node.appendChild(c); });
+    return node;
+  }
+
+  function renderSaveIndicator(){
+    var indicator = document.getElementById("save-indicator");
+    if (!indicator) return;
+    indicator.textContent = state.saveState === "saving" ? "Saving…" : "Saved to this browser";
+  }
+
+  function renderNavCounts(){
+    state.sections.forEach(function(s){
+      var countEl = document.getElementById("count-" + s.id);
+      if (countEl) countEl.textContent = s.entries.length;
+    });
+  }
+
+  function renderMissionClock(){
+    var valueEl = document.getElementById("mission-clock-value");
+    var subEl = document.getElementById("mission-clock-sub");
+    if (valueEl) valueEl.textContent = formatClock(allWordsTotal());
+    if (subEl) subEl.textContent = allWordsTotal() + " words · " + WORDS_PER_MINUTE + " wpm pace";
+  }
+
+  function renderFooters(){
+    var activeSection = getActiveSection();
+    activeSection.entries.forEach(function(entry){
+      var footer = document.getElementById("footer-" + entry.id);
+      if (!footer) return;
+      var words = countWords(entry.text);
+      footer.innerHTML = "";
+      var wordsSpan = document.createElement("span");
+      wordsSpan.textContent = words + " word" + (words === 1 ? "" : "s");
+      var dot = document.createElement("span");
+      dot.className = "dot";
+      dot.textContent = "·";
+      var timeSpan = document.createElement("span");
+      timeSpan.textContent = "≈ " + formatSeconds(words);
+      footer.appendChild(wordsSpan);
+      footer.appendChild(dot);
+      footer.appendChild(timeSpan);
+    });
+  }
+
+  function render(){
+    app.innerHTML = "";
+    var activeSection = getActiveSection();
+
+    // ---------- sidebar ----------
+    var sidebar = el("aside", { class: "sidebar" + (state.collapsed ? " collapsed" : "") });
+
+    var header = el("div", { class: "sidebar-header" });
+    if (!state.collapsed){
+      var brandWrap = el("div", {});
+      brandWrap.appendChild(el("div", { class: "brand-mark", text: "IR" }));
+      brandWrap.appendChild(el("div", { class: "brand-title", text: "Interview Rocket" }));
+      brandWrap.appendChild(el("div", { class: "brand-sub", text: "Your prep workspace" }));
+      header.appendChild(brandWrap);
+    }
+    var collapseBtn = el("button", { class: "collapse-btn", "aria-label": "Toggle sidebar" , text: state.collapsed ? "\u203A" : "\u2039"});
+    collapseBtn.onclick = toggleCollapsed;
+    header.appendChild(collapseBtn);
+    sidebar.appendChild(header);
+
+    if (!state.collapsed){
+      var content = el("div", { class: "sidebar-content" });
+
+      var nav = el("nav", { class: "nav" });
+      state.sections.forEach(function(s){
+        var isActive = s.id === activeSection.id;
+        var btn = el("button", { class: "nav-item" + (isActive ? " active" : "") });
+        var label = el("span", { class: "nav-label", text: s.title });
+        var count = el("span", { class: "nav-count", id: "count-" + s.id, text: s.entries.length });
+        btn.appendChild(label);
+        btn.appendChild(count);
+        btn.onclick = function(id){ return function(){ setActive(id); }; }(s.id);
+        nav.appendChild(btn);
+      });
+      content.appendChild(nav);
+
+      var addSectionBtn = el("button", { class: "add-section-btn", text: "+ New section" });
+      addSectionBtn.onclick = addSection;
+      content.appendChild(addSectionBtn);
+
+      var missionClock = el("div", { class: "mission-clock" });
+      missionClock.appendChild(el("div", { class: "mission-clock-label", text: "Total runway" }));
+      missionClock.appendChild(el("div", { class: "mission-clock-value", id: "mission-clock-value", text: formatClock(allWordsTotal()) }));
+      missionClock.appendChild(el("div", { class: "mission-clock-sub", id: "mission-clock-sub", text: allWordsTotal() + " words · " + WORDS_PER_MINUTE + " wpm pace" }));
+      content.appendChild(missionClock);
+
+      sidebar.appendChild(content);
+    }
+
+    app.appendChild(sidebar);
+
+    // ---------- main ----------
+    var main = el("main", { class: "main" });
+
+    var mainHeader = el("div", { class: "main-header" });
+    var headingWrap = el("div", {});
+    headingWrap.appendChild(el("div", { class: "eyebrow", text: "INTERVIEW CHEATSHEET" }));
+    headingWrap.appendChild(el("h1", { class: "title", text: activeSection.title }));
+    mainHeader.appendChild(headingWrap);
+    mainHeader.appendChild(el("div", { class: "save-indicator", id: "save-indicator", text: state.saveState === "saving" ? "Saving…" : "Saved to this browser" }));
+    main.appendChild(mainHeader);
+
+    var entryList = el("div", { class: "entry-list" });
+
+    activeSection.entries.forEach(function(entry, idx){
+      var words = countWords(entry.text);
+      var card = el("div", { class: "entry-card" });
+
+      var topRow = el("div", { class: "entry-top-row" });
+      topRow.appendChild(el("span", { class: "entry-index", text: String(idx + 1).padStart(2, "0") }));
+      var delBtn = el("button", { class: "delete-btn", "aria-label": "Delete entry", text: "Delete" });
+      delBtn.onclick = function(sectionId, entryId){ return function(){ deleteEntry(sectionId, entryId); }; }(activeSection.id, entry.id);
+      topRow.appendChild(delBtn);
+      card.appendChild(topRow);
+
+      var textarea = document.createElement("textarea");
+      textarea.className = "entry-text";
+      textarea.rows = 5;
+      textarea.placeholder = PLACEHOLDERS[activeSection.id] || "Start writing...";
+      textarea.value = entry.text;
+      textarea.oninput = function(sectionId, entryId){
+        return function(e){ updateEntry(sectionId, entryId, e.target.value); };
+      }(activeSection.id, entry.id);
+      card.appendChild(textarea);
+
+      var footer = el("div", { class: "entry-footer", id: "footer-" + entry.id });
+      footer.appendChild(el("span", { text: words + " word" + (words === 1 ? "" : "s") }));
+      footer.appendChild(el("span", { class: "dot", text: "\u00B7" }));
+      footer.appendChild(el("span", { text: "\u2248 " + formatSeconds(words) }));
+      card.appendChild(footer);
+
+      entryList.appendChild(card);
+    });
+
+    var addEntryBtn = el("button", { class: "add-entry-btn", text: "+ Add entry" });
+    addEntryBtn.onclick = function(){ addEntry(activeSection.id); };
+    entryList.appendChild(addEntryBtn);
+
+    if (state.sections.length > 1){
+      var deleteSectionBtn = el("button", { class: "delete-section-btn", text: "Delete \"" + activeSection.title + "\" section" });
+      deleteSectionBtn.onclick = function(){ deleteSection(activeSection.id); };
+      entryList.appendChild(deleteSectionBtn);
+    }
+
+    main.appendChild(entryList);
+
+    var note = el("div", { class: "footer-note", text: "Saved automatically in this browser only. Clearing your browser data will erase it." });
+    main.appendChild(note);
+
+    app.appendChild(main);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
