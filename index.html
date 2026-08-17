@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Interview Rocket — Your prep workspace</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --ink:#1B2430;
+    --mist:#F2F4F3;
+    --panel:#FFFFFF;
+    --teal:#2F6F63;
+    --teal-soft:#E4EEEC;
+    --amber:#C97B2E;
+    --line:#E1E5E4;
+    --muted:#6B7680;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; height:100%; }
+  body {
+    font-family:'Inter', sans-serif;
+    background:var(--mist);
+    color:var(--ink);
+  }
+  button { font-family:inherit; cursor:pointer; }
+  textarea::placeholder { color:#8B96A3; }
+  textarea:focus, button:focus-visible {
+    outline:2px solid var(--teal);
+    outline-offset:2px;
+  }
+
+  .app { display:flex; min-height:100vh; }
+
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    flex-shrink:0;
+    width:260px;
+    background:var(--ink);
+    color:#EDEFF1;
+    display:flex;
+    flex-direction:column;
+    padding:20px 16px;
+    transition:width .2s ease;
+    gap:20px;
+  }
+  .sidebar.collapsed{ width:56px; }
+  .sidebar.collapsed .sidebar-content{ display:none; }
+
+  .sidebar-header{
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .brand-mark{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; letter-spacing:.08em; color:var(--teal);
+    border:1px solid var(--teal); border-radius:4px;
+    display:inline-block; padding:2px 6px; margin-bottom:10px;
+  }
+  .brand-title{
+    font-family:'Fraunces', serif; font-size:18px; font-weight:600; line-height:1.2;
+  }
+  .brand-sub{ font-size:12px; color:#9AA5AF; margin-top:2px; }
+
+  .collapse-btn{
+    background:transparent; border:1px solid #3A4552; color:#EDEFF1;
+    border-radius:6px; width:26px; height:26px; line-height:1; font-size:14px;
+  }
+
+  .sidebar-content{ display:flex; flex-direction:column; gap:20px; flex:1; min-height:0; }
+
+  .nav{ display:flex; flex-direction:column; gap:4px; }
+  .nav-item{
+    display:flex; justify-content:space-between; align-items:center;
+    background:transparent; border:none; color:#C3CAD1;
+    padding:9px 10px; border-radius:7px; font-size:13.5px; text-align:left;
+    width:100%;
+  }
+  .nav-item.active{ background:#26313F; color:#fff; }
+  .nav-label{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .nav-count{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:#7C8794;
+    background:#1E2733; border-radius:10px; padding:1px 7px;
+  }
+  .nav-item.active .nav-count{ color:var(--teal); background:#0F1A17; }
+
+  .add-section-btn{
+    background:transparent; border:1px dashed #3A4552; color:#9AA5AF;
+    border-radius:7px; padding:8px 10px; font-size:12.5px; text-align:left;
+  }
+
+  .mission-clock{
+    margin-top:auto; border-top:1px solid #2C3844; padding-top:14px;
+  }
+  .mission-clock-label{
+    font-size:10.5px; letter-spacing:.08em; color:#7C8794; text-transform:uppercase;
+  }
+  .mission-clock-value{
+    font-family:'JetBrains Mono', monospace; font-size:26px; color:var(--teal);
+    margin-top:4px; letter-spacing:.02em;
+  }
+  .mission-clock-sub{ font-size:11px; color:#7C8794; margin-top:2px; }
+
+  /* ---------- main ---------- */
+  .main{ flex:1; padding:32px 40px; overflow-y:auto; }
+  .main-header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:24px; border-bottom:1px solid var(--line); padding-bottom:16px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.1em;
+    color:var(--amber); margin-bottom:6px;
+  }
+  h1.title{
+    font-family:'Fraunces', serif; font-weight:600; font-size:30px; margin:0; color:var(--ink);
+  }
+  .save-indicator{
+    font-size:12px; color:var(--muted); font-family:'JetBrains Mono', monospace;
+  }
+
+  .entry-list{ display:flex; flex-direction:column; gap:16px; max-width:720px; }
+  .entry-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:16px 18px 14px;
+  }
+  .entry-top-row{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;
+  }
+  .entry-index{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted); letter-spacing:.05em;
+  }
+  .delete-btn{
+    background:transparent; border:none; color:var(--muted); font-size:12px; padding:2px 4px;
+  }
+  textarea.entry-text{
+    width:100%; border:none; resize:vertical; font-family:'Inter', sans-serif;
+    font-size:14.5px; line-height:1.55; color:var(--ink); background:transparent;
+    padding:0; min-height:90px;
+  }
+  .entry-footer{
+    display:flex; gap:6px; margin-top:10px; font-size:12px; color:var(--muted);
+    font-family:'JetBrains Mono', monospace; border-top:1px solid var(--line); padding-top:8px;
+  }
+  .dot{ color:var(--line); }
+
+  .add-entry-btn{
+    align-self:flex-start; background:var(--teal-soft); border:1px solid var(--teal);
+    color:var(--teal); border-radius:8px; padding:9px 16px; font-size:13.5px; font-weight:500;
+  }
+  .delete-section-btn{
+    align-self:flex-start; background:transparent; border:none; color:var(--muted);
+    font-size:12px; margin-top:6px; text-decoration:underline; text-underline-offset:2px;
+  }
+
+  .footer-note{
+    max-width:720px; margin-top:24px; font-size:11.5px; color:var(--muted);
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  /* ---------- story fields & tags ---------- */
+  .field-block{ margin-bottom:14px; }
+  .field-block:last-of-type{ margin-bottom:0; }
+  .field-top-row{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;
+  }
+  .field-label{
+    font-size:11.5px; font-weight:600; color:var(--teal); text-transform:uppercase; letter-spacing:.04em;
+  }
+  .field-remove-btn{
+    background:transparent; border:none; color:var(--muted); font-size:11px; padding:2px 4px;
+  }
+  textarea.field-text{
+    width:100%; border:1px solid var(--line); border-radius:8px; resize:vertical;
+    font-family:'Inter', sans-serif; font-size:14px; line-height:1.5; color:var(--ink);
+    background:#FAFBFB; padding:8px 10px; min-height:56px;
+  }
+  .add-field-btn{
+    background:transparent; border:1px dashed var(--line); color:var(--muted);
+    border-radius:7px; padding:7px 12px; font-size:12px; margin-top:4px;
+  }
+
+  .tags-row{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:14px; }
+  .tag-chip{
+    display:flex; align-items:center; gap:5px;
+    background:var(--teal-soft); color:var(--teal); border-radius:999px;
+    padding:4px 10px 4px 12px; font-size:12px; font-weight:500;
+  }
+  .tag-chip button{
+    background:transparent; border:none; color:var(--teal); font-size:13px; line-height:1; padding:0;
+  }
+  .add-tag-btn{
+    background:transparent; border:1px dashed var(--teal); color:var(--teal);
+    border-radius:999px; padding:4px 12px; font-size:12px;
+  }
+  .tag-panel{
+    position:relative; margin-bottom:14px;
+  }
+  .tag-panel-popover{
+    position:absolute; z-index:5; top:calc(100% + 6px); left:0;
+    background:#fff; border:1px solid var(--line); border-radius:10px;
+    box-shadow:0 8px 24px rgba(27,36,48,.12); padding:10px; width:260px;
+  }
+  .tag-panel-list{ display:flex; flex-direction:column; gap:2px; max-height:180px; overflow-y:auto; margin-bottom:8px; }
+  .tag-panel-item{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:5px 6px; border-radius:6px; font-size:12.5px;
+  }
+  .tag-panel-item:hover{ background:var(--mist); }
+  .tag-panel-item-name{ background:transparent; border:none; text-align:left; color:var(--ink); font-size:12.5px; flex:1; padding:0; }
+  .tag-panel-item-del{ background:transparent; border:none; color:var(--muted); font-size:11px; padding:0 2px; }
+  .tag-panel-new{ display:flex; gap:6px; border-top:1px solid var(--line); padding-top:8px; }
+  .tag-panel-new input{
+    flex:1; border:1px solid var(--line); border-radius:6px; padding:5px 8px; font-size:12.5px; font-family:'Inter', sans-serif;
+  }
+  .tag-panel-new button{
+    background:var(--teal); color:#fff; border:none; border-radius:6px; padding:5px 10px; font-size:12px;
+  }
+
+  @media (max-width: 720px){
+    .sidebar{ width:210px; }
+    .main{ padding:24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var WORDS_PER_MINUTE = 135;
+  var STORAGE_KEY = "interview-cheatsheet:data";
+
+  // Story entries are structured: each has its own list of labeled fields
+  // (addable/removable per story) plus tags (addable/removable, and the
+  // global tag list itself can be edited).
+  var DEFAULT_STORY_FIELD_LABELS = [
+    "Context & problem statement",
+    "Execution steps & solutions",
+    "Success metrics",
+    "Results / impact",
+    "Tips for telling this one",
+    "What could have gone better"
+  ];
+
+  var DEFAULT_TAGS = [
+    "Initiative/0-1 Product", "Conflict/Disagreement", "Data-Driven Decision", "Work with Engineers",
+    "Difficult/Complicated Project", "Deal with Ambiguity", "Convince Others",
+    "Influence Others (Without Authority)", "Cross-functional Team", "Failure/Made a Mistake",
+    "Challenges/Difficult Situation", "Make Decision without much Data", "Simplify a Product",
+    "Trade-Off", "Work Beyond Your Responsibility", "Prioritization", "Scope/Direction Change",
+    "Failed to Deliver on Time",
+    "0→1", "XFN", "Ambiguity", "Data", "Influence", "Crisis", "Customer trust", "Ownership",
+    "Conflict", "Customer context", "Learning", "Engineering", "Phased delivery", "User trust",
+    "Payments", "Tradeoff", "Stakeholder influence", "Learning agility", "AI", "Experimentation",
+    "Failure", "Recovery", "QA", "Technical depth", "Architecture", "Oracle", "System design",
+    "Scalability", "Technical execution", "Data & decisions"
+  ];
+
+  var DEFAULT_TECH_FIELD_LABELS = ["Question", "Answer"];
+
+  function buildFieldsFromLabels(labels){
+    return labels.map(function(label){ return { id: uid(), label: label, text: "" }; });
+  }
+
+  function defaultStoryFields(){
+    return buildFieldsFromLabels(DEFAULT_STORY_FIELD_LABELS);
+  }
+
+  function mkStoryEntry(id, title, company, tags, context, execution, results, better, tips, spoken){
+    return {
+      id: id,
+      tags: tags,
+      fields: [
+        { id: uid(), label: "Story title", text: title + " — " + company },
+        { id: uid(), label: "Context & problem statement", text: context },
+        { id: uid(), label: "Execution steps & solutions", text: execution },
+        { id: uid(), label: "Results & impact", text: results },
+        { id: uid(), label: "What I could do better", text: better },
+        { id: uid(), label: "Tips, follow-ups & mock feedback", text: tips },
+        { id: uid(), label: "Polished spoken answer", text: spoken }
+      ]
+    };
+  }
+
+  var STORY_BANK_ENTRIES = [
+    mkStoryEntry("sb-1", "Automated special-pricing framework", "SunPower",
+      ["0→1", "XFN", "Ambiguity"],
+      "Problem — Negotiated dealer discounts were manually applied, inconsistent, and invisible until after checkout, creating errors and pricing disputes. Discovery — Mapped the workflow with Sales, Support, and Pricing; analyzed historical transactions by dealer tier, volume, model, state, and seasonality.",
+      "Decision — Standardized eligibility into auditable rules with effective dates and approval guardrails instead of automating the opaque process as-is. Execution — Partnered with Engineering to configure Oracle Fusion and Design to surface real-time discounts in the dealer portal; trained Pricing users.",
+      "Result — Reduced pricing disputes by more than 90% and eliminated manual discount application for Support.",
+      "Learning — Self-service needs governance: manager approval, test orders, and reassignment protected revenue without sacrificing speed.",
+      "Best used for: Complex project, Cross-functional leadership, Operational scale.",
+      "One project I’m especially proud of at SunPower was transforming dealer discounting from a manual, negotiation-based process into a standardized self-service platform. I found the opportunity by tracking support-ticket patterns: pricing disputes were a top theme because discounts were applied manually and dealers could not see them until after ordering. I mapped the end-to-end workflow with Sales, Support, and Pricing, then analyzed Snowflake transaction data by dealer tier, sales volume, product, state, and seasonality. The patterns allowed me to propose clear eligibility rules—for example, a qualifying dealer could automatically receive a product-specific discount for a defined period. After aligning leadership, I partnered with Engineering to configure the rules in Oracle Fusion and with Design to display discounts in real time. Because Pricing would manage the rules, we added manager approvals, test orders, and backup approvers. The launch reduced pricing disputes by more than 90%, eliminated manual work for Support, and created a transparent system that Pricing could scale independently."
+    ),
+    mkStoryEntry("sb-2", "Prioritized the hidden higher-ROI fix", "SunPower",
+      ["Data", "Prioritization", "Influence"],
+      "Choice — Automate 20 hours/week of offshore order-entry work or fix a low-frequency account-creation integration failure. Analysis — Quantified labor savings, P1 interruption costs, onboarding friction, and second-order impact on US engineering focus.",
+      "Insight — Frequency alone understated impact; labor cost, customer journey criticality, and context switching changed the ROI. Decision — Prioritized the integration fix, then sequenced automation as the follow-up initiative.",
+      "Result — Eliminated recurring P1 incidents, stabilized onboarding, and protected engineering focus.",
+      "Learning — Use a multidimensional impact model, not the loudest stakeholder or most visible volume metric.",
+      "Best used for: Data-informed decision, Tradeoff, Influence without authority.",
+      "In a biweekly roadmap review at SunPower, I had to choose between two strongly sponsored initiatives. Operations wanted to automate offshore order entry, which could save about 20 hours per week. Engineering wanted to fix an account-creation integration failure that happened only once or twice a week but triggered a P1 each time. Initially, the automation appeared more valuable, so I interviewed the support team and quantified the manual effort. Then I evaluated the integration issue across additional dimensions: onboarding friction, US engineering interruption, labor cost, and the second-order cost of derailing planned work. That broader analysis showed the lower-frequency issue had the higher total ROI. I recommended fixing the integration first and sequencing the automation next. The team aligned, we eliminated the recurring P1s, stabilized onboarding, and kept engineers focused on strategic work. The experience changed my prioritization approach: I now compare user impact, labor economics, urgency, and downstream effects—not just frequency or hours saved."
+    ),
+    mkStoryEntry("sb-3", "Resolved a $200K dealer pricing crisis", "SunPower",
+      ["Crisis", "Customer trust", "Ownership"],
+      "Trigger — Audit flagged a suspicious commission payout for a major dealer after it opened an entity in a new state. Root cause — A Salesforce onboarding error assigned the original state’s pricing and tax rules to the new entity.",
+      "Ownership — Led the investigation across Salesforce records and coordinated Ops, Finance, Sales, and Engineering. Communication — Quantified more than $200K in overpayments and represented the team in C-level dealer discussions with a transparent timeline and remediation plan.",
+      "Recovery — Corrected the setup, supported the agreed pricing remedy, and protected the dealer relationship.",
+      "",
+      "Best used for: Difficult challenge, Customer conflict, Executive communication.",
+      "At SunPower, an audit flagged a suspicious commission payout involving one of our largest dealers. I took ownership of the investigation and traced the issue through Salesforce, where dealer records were linked to pricing, tax, and commission objects. We found that a new entity in another state had accidentally inherited the original entity’s pricing rules. That caused incorrect customer quotes and more than $200,000 in commission overpayments. I coordinated Ops, Finance, Sales, and Engineering to reconstruct the timeline, quantify exposure, and correct the configuration quickly. Because the dealer had already communicated prices to customers, the issue threatened its customer relationships. I represented our team in executive meetings, explained the root cause and remediation clearly, and supported leadership’s decision on additional pricing assistance. After stabilizing the relationship, I added onboarding validation and approval steps in Salesforce. The experience showed me that in a crisis, trust comes from fast ownership, precise facts, transparent communication, and systemic prevention—not defensiveness."
+    ),
+    mkStoryEntry("sb-4", "Turned engineering resistance into alignment", "UtilityAPI",
+      ["Conflict", "Customer context", "Learning"],
+      "Context — Proposed baselining retry timing and authorization-response metrics after the engineering manager left and team trust was still forming. Conflict — An engineer challenged the work publicly, believing it distracted from collection-success goals and would enter the sprint immediately.",
+      "Response — Moved the discussion to a 1:1, led with B2B2C customer pain, and explained why predictable failure recovery reduces support escalations. Clarification — Reframed the work as exploratory roadmap alignment, not an immediate build request; uncovered a scope-communication gap.",
+      "Outcome — Reached shared understanding and improved collaboration without forcing the proposal through.",
+      "Learning — Socialize ideas early, label exploratory versus committed work, and ground technical proposals in customer context.",
+      "Best used for: Disagreement, Persuasion, Learning from feedback.",
+      "At UtilityAPI, I proposed baselining system timing metrics, such as retry delay after a failed collection and time to confirmation after authorization. An engineer pushed back strongly in a team meeting because he believed the work would distract from improving collection success. Rather than debate in the room, I scheduled a 1:1 and prepared the customer context. In our B2B2C model, clients told us that unpredictable retries created friction with their end customers and unnecessary support tickets. Even when we could not prevent every failure, saying when we would retry could preserve confidence. I also clarified that I was seeking early alignment for future roadmap planning, not asking the team to add work to the current sprint. He had assumed the opposite, and we recognized the conflict was largely a framing problem. We aligned on the rationale and the conversation improved our working relationship. Since then, I socialize early ideas informally, distinguish exploratory work from commitments, and invite engineers to shape the solution before planning."
+    ),
+    mkStoryEntry("sb-5", "Balanced delivery speed with accuracy", "SunPower",
+      ["Engineering", "Phased delivery", "User trust"],
+      "Problem — The delivery calendar took about four seconds because the backend calculated warehouse lead times in real time. Proposal — Engineering suggested defaulting to six business days, a one-sprint fix that was fast but not always accurate.",
+      "Product concern — A precise-looking but artificial date could erode dealer trust, miss promises, and affect revenue recognition. Alignment — Advocated for a phased approach: improve latency immediately while committing to a dynamic Oracle–Salesforce lead-time API.",
+      "Result — Reduced load time to under one second and preserved a path to accurate product- and location-level dates.",
+      "Learning — Persuasion works best when it improves an idea through user and system context rather than simply rejecting it.",
+      "Best used for: Convince engineering, Speed vs. quality, Product judgment.",
+      "At SunPower, dealers waited about four seconds for the delivery calendar because the system calculated warehouse lead times in real time. Engineering proposed a quick one-sprint fix: default every order to six business days because the maximum known lead time was five. I appreciated the speed, but I was concerned that a precise-looking date that did not reflect actual product and location conditions would create false confidence. If the promise was missed, we could damage dealer trust and delay downstream revenue. I reframed the discussion around both latency and accuracy. We agreed on a phased plan: ship a near-term performance improvement that reduced the experience to under one second, then build an Oracle Fusion–Salesforce API to provide dynamic lead times in the following quarter. Dealers received a faster experience immediately, while the long-term design protected operational integrity. It reinforced that influencing Engineering is often about expanding the decision frame, not rejecting a technically convenient option."
+    ),
+    mkStoryEntry("sb-6", "Launched prepayments through a phased gateway strategy", "SunPower",
+      ["Payments", "Tradeoff", "Stakeholder influence"],
+      "Goal — Improve cash flow by enabling partner prepayments in the dealer portal. Tradeoff — Nuvei offered automated reconciliation but required 10+ weeks; National Processing could launch in one week but created temporary manual AR work.",
+      "Resistance — The AR director reasonably opposed manual matching because of workload and error risk. Decision — Validated temporary capacity and controls with AR/AP, chose the faster gateway for immediate cash impact, and documented Nuvei as phase two.",
+      "Result — Launched quickly and helped reduce DSO from 48 to 40 days.",
+      "Learning — A reversible operational burden can be acceptable when the business value is urgent and the scalable end state is funded and explicit.",
+      "Best used for: Senior stakeholder disagreement, Short vs. long term, Business urgency.",
+      "At SunPower, I led an urgent initiative to enable dealer prepayments and improve cash flow. We had two options. Nuvei, our existing vendor, could automatically connect payments to invoices and orders, but required more than ten weeks of integration work. National Processing could be embedded in about a week, but Accounts Receivable would temporarily need to match payments manually. The AR director initially opposed the faster option because of workload and human-error risk. I acknowledged the concern, worked with AR and AP to estimate volume and confirm temporary capacity, and made the manual controls explicit. I recommended National Processing as phase one because the business needed cash quickly, while documenting the Nuvei integration as the scalable phase-two solution. We launched prepayments rapidly and helped reduce days sales outstanding from 48 to 40 days. The decision balanced immediate business value with long-term system health and showed how a reversible short-term compromise can unlock impact without becoming permanent architecture."
+    ),
+    mkStoryEntry("sb-7", "Learned AI app building through structured experiments", "Personal",
+      ["Learning agility", "AI", "Experimentation"],
+      "Goal — Learn how AI coding tools perform in a real product workflow, not only through reviews or tutorials. Experiment — Tested Claude, Manus, Cursor, Lovable, and ChatGPT with comparable prompts and the same personal app use case.",
+      "Evaluation — Compared output quality, instruction following, iteration speed, debugging, and fit for the intended workflow. Knowledge building — Used tutorials and prompt-design material to understand concepts behind observed performance.",
+      "Peer calibration — Shared findings with PM communities to uncover blind spots and learn practical techniques.",
+      "",
+      "Best used for: Learn something quickly, Product curiosity, AI fluency.",
+      "When I want to learn a new technology, I combine hands-on experimentation, structured research, and peer feedback. Recently, I wanted to understand AI-assisted app building, so instead of relying on product reviews, I tested Claude, Manus, Cursor, Lovable, and ChatGPT against the same personal use case with comparable prompts. I evaluated how well each tool followed requirements, handled iteration and debugging, and supported an end-to-end workflow. When I encountered gaps, I used tutorials and prompt-design resources to understand the underlying concepts rather than just copying solutions. I then shared observations with PM peers, which surfaced blind spots and practical techniques I had missed. Finally, I applied those lessons directly to my own web and mobile prototypes. That loop—experiment, learn the concepts, seek experienced perspectives, and apply the learning—is how I build practical fluency quickly."
+    ),
+    mkStoryEntry("sb-8", "Recovered a delayed bulk-order launch", "SunPower",
+      ["Failure", "Recovery", "QA"],
+      "Mistake — Committed to launching the full mix-and-match bulk-order experience at once and underestimated solar-product bundle dependencies. Signal — QA found more than 20 bugs, including accessory-ratio and validation edge cases, forcing a launch delay.",
+      "Ownership — Communicated the delay before external messaging, reset expectations with Sales, Ops, and Marketing, and avoided minimizing the miss. Recovery — Re-estimated with Engineering, triaged release blockers into an MVP, established standups, and tested with dealers before launch.",
+      "Outcome — The eventual launch was smooth and received positive dealer feedback.",
+      "Learning — Break scope into releasable slices, use feature flags, involve QA during design/POC, and communicate risk continuously.",
+      "Best used for: Mistake or failure, Resilience, Better product process.",
+      "Early in my time at SunPower, I failed to deliver a bulk-ordering feature on schedule. I had committed to launching the full mix-and-match experience at once because it was a new page without obvious legacy constraints. During QA, however, we uncovered more than 20 bugs. Solar hardware had strict bundling ratios, so flexible product combinations created validation edge cases that I had underestimated. I took responsibility and communicated the delay before external messaging went out. I re-estimated the work with Engineering, updated Sales, Ops, and Marketing, and triaged defects so the team could focus on the true MVP blockers. I also established frequent stakeholder updates and conducted dealer testing before release. The eventual launch went smoothly and received positive feedback, but the more valuable outcome was the change in my operating model. I now break large requirements into releasable slices, use feature flags, bring QA into the POC stage, and communicate risks early rather than waiting for certainty."
+    ),
+    mkStoryEntry("sb-9", "Reduced order-update latency from 30 seconds to under one", "SunPower",
+      ["Technical depth", "Architecture", "XFN"],
+      "Problem — Updating a requested delivery date synchronously called Oracle Fusion and ran product, logistics, and lead-time logic, freezing the page for about 30 seconds. User insight — Dealers needed to record their requested date quickly; the calculated estimate did not have to block the interaction.",
+      "Architecture — Decoupled the workflow: capture the request immediately, process estimates asynchronously in an AWS microservice, and write back the result. Experience — Displayed the dealer’s requested date separately from the calculated estimate and added pagination for large order tables.",
+      "Result — Improved update latency from 30 seconds to under one second while retaining accurate delivery estimates.",
+      "",
+      "Best used for: Technical project, Multiple stakeholders, Platform modernization.",
+      "At SunPower, I owned a redesign of the dealer portal’s order-management experience. Updating a requested delivery date took about 30 seconds because each change synchronously called Oracle Fusion and ran product-level supply, logistics, and lead-time calculations. Dealer interviews revealed that users mainly needed to record their requested date quickly; the calculated estimate did not need to block that action. I brought that insight to Salesforce, Oracle, architecture, and Design partners. We redesigned the flow so the portal captured the requested date immediately, stored it through an AWS microservice, and calculated the estimated delivery date asynchronously in the background. On the front end, we showed the requested and estimated dates separately and added pagination for large order tables. I coordinated the sequencing—backend redesign first, then the UI changes—and kept the teams aligned on the user outcome. The new architecture reduced update latency from about 30 seconds to under one while preserving accurate estimates and creating a more scalable integration."
+    ),
+    mkStoryEntry("sb-10", "Simplified order orchestration for faster revisions", "SunPower",
+      ["Oracle", "System design", "Scalability"],
+      "Problem — Multiple OIC integrations re-triggered on order revisions, creating order locks, long status delays, and brittle header-level shipping logic. Scope — Focused the redesign on new orders and common revisions: requested dates, ship-to addresses, and shipping contacts.",
+      "Simplification — Removed unnecessary salesperson and region orchestration steps and replaced later OIC calls with Oracle OM extensions. Experience goal — Support consecutive edits without throwing locking errors and shorten the roughly 10-minute revision cycle.",
+      "Product role — Translate fulfillment constraints into a smaller orchestration path and align business rules with technical sequencing.",
+      "",
+      "Best used for: Technical design, Process simplification, Operational reliability.",
+      "At SunPower, I worked on simplifying the order-orchestration flow for new orders and revisions. The existing process depended on several Oracle Integration Cloud calls that could re-trigger whenever a dealer changed a requested date, ship-to address, or shipping contact. That created order locks, delayed status updates by roughly ten minutes, and made rapid consecutive changes unreliable. I helped define a narrower target flow: remove orchestration steps that were no longer necessary, replace later OIC integrations with Oracle Order Management extensions, and handle common revisions without restarting the entire process. The product goal was to reduce processing time and allow users to make consecutive changes without receiving locking errors. My role was to connect fulfillment rules to the system sequence, clarify which cases belonged in the first scope, and keep the redesign focused on user-visible reliability. I would complete this story with the final latency and error-rate metrics before using it as a primary interview example."
+    ),
+    mkStoryEntry("sb-11", "Grounded an AI assistant with MCP", "Apple",
+      ["Technical execution", "Data & decisions"],
+      "The centralized retail-operations platform supports 200,000+ Apple and partner storefronts. Operators needed a faster way to answer questions across fragmented operational data and documentation. A generic assistant could sound confident while using the wrong source, data definition, or permission context, so the real product problem was trustworthy decision support—not simply adding chat.",
+      "I partnered with AI/ML, Engineering, and business teams to prioritize high-value questions and define what a grounded answer must contain. I framed MCP as a governed context layer: the assistant could discover approved tools and resources through clear contracts, while source permissions remained the authority. I designed prompt-response test sets and used SQL-based validation against source-of-truth data. I also classified failures into retrieval, tool selection, reasoning, data freshness, and response presentation so each issue had a clear owner and fix path. We began with read-only analytics and required explicit confirmation and auditability before considering write actions.",
+      "We established a repeatable evaluation and governance framework that improved answer quality, data grounding, and reliability for self-service analytics. The approach also created a safer path from read-only questions toward operator actions without bypassing existing access controls. I would cite evaluation lift or adoption metrics only after they are formally approved for external use.",
+      "I would instrument the evaluation framework earlier with a versioned golden dataset and slice results by use case, region, source system, and failure type. That would make regressions easier to detect and help us distinguish a model problem from a context or data-contract problem faster.",
+      "Lead with the product insight: MCP is the governed context and tool layer, not the value by itself. Be ready to explain MCP host/client/server roles, tool contracts, permission inheritance, read versus write boundaries, SQL validation, failure taxonomy, and why human confirmation is required for consequential actions. Do not invent a quality-lift metric; use 200,000+ storefronts only as platform scale.",
+      "At Apple, I worked on an internal AI assistant for a centralized retail-operations platform supporting more than 200,000 Apple and partner storefronts. Operators needed faster answers across fragmented operational data and documentation, but a general-purpose assistant could produce a fluent response without using the correct source, definition, or permission context. I reframed the problem from ‘add chat’ to ‘deliver governed decision support.’ I partnered with AI/ML, Engineering, and business teams to prioritize high-value questions and define what evidence a trustworthy answer required. We treated MCP as a governed context layer: the assistant could discover approved tools and resources through clear contracts, while the underlying systems remained the authority for permissions. I built prompt-response test sets and used SQL-based validation to compare answers with source-of-truth data. I also separated failures into retrieval, tool selection, reasoning, freshness, and presentation so the right team could diagnose each issue. We started with read-only analytics and required explicit confirmation and auditability before considering consequential actions. The result was a repeatable evaluation and governance framework that improved grounding and reliability and created a safer path toward self-service operator workflows. My biggest learning was that enterprise AI differentiation is not the chat interface; it is the context architecture, permission model, evaluation loop, and the boundary between recommendation and action."
+    )
+  ];
+
+  var DEFAULT_SECTIONS = [
+    { id: "about-me", title: "About me", kind: "simple", entries: [
+      { id: "am-1", text: "I\u2019m a platform product manager with 5+ years of experience turning fragmented data and complex workflows into reliable, governed platforms. At Apple, I\u2019m helping build the global storefront operations platform supporting 200,000+ Apple and partner locations. My work spans AI anomaly detection, platform governance, and operational analytics. Previously, I built reliable utility-data infrastructure at UtilityAPI and self-service commerce, pricing, and payment platforms at SunPower. The thread across my career is building strong platform foundations\u2014and then using data and AI to make them more intelligent and scalable." },
+      { id: "am-2", text: "At Apple, I support a multi-year centralized retail-operations platform spanning 200,000+ Apple and partner storefronts. My work covers platform requirements, AI-assisted anomaly detection, analytics, data quality, access governance, and operational workflows. I partner with Retail, Engineering, Design, and AI/ML teams to turn fragmented data and manual processes into scalable internal products." },
+      { id: "am-3", text: "At UtilityAPI, I lead the backend data-acquisition platform that collects unstructured energy data from hundreds of utilities and delivers reliable outputs through APIs and downloadable files. I manage multiple authorization and collection mechanisms\u2014including proxies and scrapers\u2014with a focus on data accuracy, consistency, reliability, and observability. Because data is the core product at a small startup, I work across nearly every function as the source provider for downstream teams. My current major initiative is moving the architecture from a program-based to a function-based design to improve scalability, triage, development speed, and system visibility. On the customer side, I launched a real-time utility health dashboard and partnered with Engineering to define SLIs and SLOs across core workflows, improving transparency and reducing support burden." },
+      { id: "am-4", text: "At SunPower, I led the end-to-end dealer platform and internal operations experience across ordering, pricing, and payments. I owned the full product lifecycle\u2014from dealer interviews, requirements, and internal documentation through user testing, go-to-market planning, training, post-launch metrics, and WBR reporting\u2014while partnering with Sales, Support, Pricing, AP/AR, Supply Chain, and Marketing. In channel strategy and operations, I balanced standardized pricing with frequent dealer exceptions by automating pricing logic, defining guardrails, and reducing manual overrides, which improved consistency and protected margin while preserving flexibility for strategic partners. I also owned quote-to-cash workflows in Salesforce CPQ, spanning lead and opportunity creation, quoting and configuration, agreement signature, price lock, amendments, and order placement. Key launches included self-service bulk ordering, a rule-based special-pricing framework, and redesigned order orchestration and dealer-payment systems that reduced escalations and improved transparency." },
+      { id: "am-5", text: "I enjoy product management because it sits at the intersection of customer problems, data, and execution. I\u2019m most energized when I can take a messy workflow, clarify the real problem, align people with different incentives, and build a solution that creates measurable impact. I also like that the role requires both structured judgment and constant learning." },
+      { id: "am-6", text: "Customize this before each interview: connect the company\u2019s mission and current product opportunity to your relevant experience, explain why the problem space matters to you, and name the distinctive contribution you can make in the role." }
+    ] },
+    { id: "story-bank", title: "Story bank", kind: "fields", defaultFieldLabels: DEFAULT_STORY_FIELD_LABELS, entries: STORY_BANK_ENTRIES },
+    { id: "technical", title: "Technical questions", kind: "fields", defaultFieldLabels: DEFAULT_TECH_FIELD_LABELS, entries: [
+      { id: "tq-1", tags: [], fields: [
+        { id: uid(), label: "Question", text: "Walk me through a technical architecture you influenced." },
+        { id: uid(), label: "Answer", text: "At SunPower, a dealer changing a requested delivery date triggered a synchronous Oracle Fusion call and several product, logistics, and lead-time calculations, freezing the page for about 30 seconds. Dealer research showed that users needed to record their requested date immediately, while the calculated estimate could arrive later. I aligned Salesforce, Oracle, Architecture, Design, and dealer stakeholders around a decoupled workflow: capture the request instantly, process the estimate asynchronously in an AWS microservice, and write the result back. We also separated the requested date from the calculated estimate in the UI. This reduced update latency from about 30 seconds to under one second while preserving accurate delivery estimates." }
+      ] },
+      { id: "tq-2", tags: [], fields: [
+        { id: uid(), label: "Question", text: "How do you define SLIs and SLOs for a data platform?" },
+        { id: uid(), label: "Answer", text: "I start with the customer journey rather than infrastructure metrics alone. At UtilityAPI, I mapped authorization, collection, parsing, delivery, and refresh workflows, then identified the signals customers actually experience: success rate, time to first data, freshness, completeness, and recovery time. I partnered with Engineering to define measurable SLIs and realistic SLOs for those critical paths, segmented where utility behavior made a single target misleading, and surfaced the results in a real-time utility health dashboard. The goal was to make reliability actionable for Engineering and transparent for customers, which improved triage and reduced support burden." }
+      ] },
+      { id: "tq-3", tags: [], fields: [
+        { id: uid(), label: "Question", text: "How do you ensure data quality across heterogeneous integrations?" },
+        { id: uid(), label: "Answer", text: "At UtilityAPI, we collect unstructured energy data through several authorization and collection mechanisms, including proxies and scrapers, so consistency cannot depend on one integration pattern. I treat quality as an end-to-end product problem: define a canonical output contract, validate data at collection and transformation boundaries, monitor completeness and freshness, and distinguish source-utility failures from failures we control. I also use observability and utility-level health signals to prioritize recurring issues. This creates clear ownership, faster triage, and more reliable API and downloadable-file outputs for downstream customers." }
+      ] }
+    ] }
+  ];
+
+  var PLACEHOLDERS = {
+    "about-me": "Write a 60–90 second summary of your background, what you do now, and the thread that connects it...",
+    "story-bank": "Set the scene, name the challenge, walk through what you did, and land on the result. One story per box.",
+    "technical": "Sketch how you'd answer — key concepts, trade-offs, the example you'd reach for."
+  };
+
+  function uid(){ return Math.random().toString(36).slice(2, 10); }
+
+  function countWords(text){
+    var trimmed = (text || "").trim();
+    if (!trimmed) return 0;
+    return trimmed.split(/\s+/).length;
+  }
+
+  function formatSeconds(words){
+    var totalSeconds = Math.round((words / WORDS_PER_MINUTE) * 60);
+    if (totalSeconds < 60) return totalSeconds + " sec";
+    var m = Math.floor(totalSeconds / 60);
+    var s = totalSeconds % 60;
+    return s === 0 ? (m + " min") : (m + " min " + s + " sec");
+  }
+
+  function formatClock(totalWords){
+    var totalSeconds = Math.round((totalWords / WORDS_PER_MINUTE) * 60);
+    var m = Math.floor(totalSeconds / 60);
+    var s = totalSeconds % 60;
+    return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+  }
+
+  function isValidSection(s){
+    if (!s || typeof s !== "object") return false;
+    if (typeof s.id !== "string" || typeof s.title !== "string") return false;
+    if (!Array.isArray(s.entries)) return false;
+    if (s.kind === "fields"){
+      return s.entries.every(function(e){
+        return e && Array.isArray(e.fields) && Array.isArray(e.tags);
+      });
+    }
+    // "simple" (or any legacy/unknown kind) just needs text entries
+    return s.entries.every(function(e){ return e && typeof e.text === "string"; });
+  }
+
+  function loadState(){
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw){
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.sections) && parsed.sections.length > 0 && parsed.sections.every(isValidSection)){
+          return {
+            sections: parsed.sections,
+            tags: Array.isArray(parsed.tags) ? parsed.tags : DEFAULT_TAGS.slice()
+          };
+        }
+      }
+    } catch(e){ /* fall through to defaults */ }
+    return {
+      sections: JSON.parse(JSON.stringify(DEFAULT_SECTIONS)),
+      tags: DEFAULT_TAGS.slice()
+    };
+  }
+
+  var loaded = loadState();
+
+  var state = {
+    sections: loaded.sections,
+    tags: loaded.tags,
+    activeId: null,
+    collapsed: false,
+    saveState: "idle",
+    openTagPanelFor: null // entry id whose tag picker is open
+  };
+  state.activeId = state.sections[0].id;
+
+  var saveTimeout = null;
+  function persist(){
+    state.saveState = "saving";
+    renderSaveIndicator();
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(function(){
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ sections: state.sections, tags: state.tags }));
+        state.saveState = "saved";
+      } catch(e){
+        state.saveState = "idle";
+      }
+      renderSaveIndicator();
+    }, 400);
+  }
+
+  function getActiveSection(){
+    for (var i = 0; i < state.sections.length; i++){
+      if (state.sections[i].id === state.activeId) return state.sections[i];
+    }
+    return state.sections[0];
+  }
+
+  function entryWordTotal(section, e){
+    if (section.kind === "fields"){
+      return (e.fields || []).reduce(function(sum, f){ return sum + countWords(f.text); }, 0);
+    }
+    return countWords(e.text);
+  }
+
+  function sectionWordTotal(s){
+    return s.entries.reduce(function(sum, e){ return sum + entryWordTotal(s, e); }, 0);
+  }
+
+  function allWordsTotal(){
+    return state.sections.reduce(function(sum, s){ return sum + sectionWordTotal(s); }, 0);
+  }
+
+  // ---- mutators: simple text entries ----
+  function updateEntry(sectionId, entryId, text){
+    state.sections.forEach(function(s){
+      if (s.id !== sectionId) return;
+      s.entries.forEach(function(e){
+        if (e.id === entryId) e.text = text;
+      });
+    });
+    persist();
+    renderFooters();
+    renderNavCounts();
+    renderMissionClock();
+  }
+
+  function addEntry(sectionId){
+    state.sections.forEach(function(s){
+      if (s.id !== sectionId) return;
+      if (s.kind === "fields") s.entries.push({ id: uid(), fields: buildFieldsFromLabels(s.defaultFieldLabels || DEFAULT_STORY_FIELD_LABELS), tags: [] });
+      else s.entries.push({ id: uid(), text: "" });
+    });
+    persist();
+    render();
+  }
+
+  function deleteEntry(sectionId, entryId){
+    state.sections.forEach(function(s){
+      if (s.id === sectionId) s.entries = s.entries.filter(function(e){ return e.id !== entryId; });
+    });
+    persist();
+    render();
+  }
+
+  // ---- mutators: story fields ----
+  function updateStoryField(sectionId, entryId, fieldId, text){
+    state.sections.forEach(function(s){
+      if (s.id !== sectionId) return;
+      s.entries.forEach(function(e){
+        if (e.id !== entryId) return;
+        (e.fields || []).forEach(function(f){ if (f.id === fieldId) f.text = text; });
+      });
+    });
+    persist();
+    renderFooters();
+    renderNavCounts();
+    renderMissionClock();
+  }
+
+  function addStoryField(sectionId, entryId){
+    var label = window.prompt("Name this section (e.g. \"Stakeholders involved\")");
+    if (!label || !label.trim()) return;
+    state.sections.forEach(function(s){
+      if (s.id !== sectionId) return;
+      s.entries.forEach(function(e){
+        if (e.id === entryId) e.fields.push({ id: uid(), label: label.trim(), text: "" });
+      });
+    });
+    persist();
+    render();
+  }
+
+  function removeStoryField(sectionId, entryId, fieldId){
+    state.sections.forEach(function(s){
+      if (s.id !== sectionId) return;
+      s.entries.forEach(function(e){
+        if (e.id === entryId) e.fields = e.fields.filter(function(f){ return f.id !== fieldId; });
+      });
+    });
+    persist();
+    render();
+  }
+
+  // ---- mutators: tags ----
+  function addTagToEntry(sectionId, entryId, tagName){
+    state.sections.forEach(function(s){
+      if (s.id !== sectionId) return;
+      s.entries.forEach(function(e){
+        if (e.id === entryId && e.tags.indexOf(tagName) === -1) e.tags.push(tagName);
+      });
+    });
+    persist();
+    render();
+  }
+
+  function removeTagFromEntry(sectionId, entryId, tagName){
+    state.sections.forEach(function(s){
+      if (s.id !== sectionId) return;
+      s.entries.forEach(function(e){
+        if (e.id === entryId) e.tags = e.tags.filter(function(t){ return t !== tagName; });
+      });
+    });
+    persist();
+    render();
+  }
+
+  function createAndAddTag(sectionId, entryId, tagName){
+    tagName = tagName.trim();
+    if (!tagName) return;
+    if (state.tags.indexOf(tagName) === -1) state.tags.push(tagName);
+    addTagToEntry(sectionId, entryId, tagName);
+  }
+
+  function deleteGlobalTag(tagName){
+    if (!window.confirm("Delete tag \"" + tagName + "\"? This removes it from every story.")) return;
+    state.tags = state.tags.filter(function(t){ return t !== tagName; });
+    state.sections.forEach(function(s){
+      if (s.kind !== "fields") return;
+      s.entries.forEach(function(e){ e.tags = e.tags.filter(function(t){ return t !== tagName; }); });
+    });
+    persist();
+    render();
+  }
+
+  function toggleTagPanel(entryId){
+    state.openTagPanelFor = state.openTagPanelFor === entryId ? null : entryId;
+    render();
+  }
+
+  // ---- mutators: sections ----
+  function addSection(){
+    var title = window.prompt("Name this section");
+    if (!title || !title.trim()) return;
+    var wantsStory = window.confirm(
+      "Structure it like Story bank, with labeled fields and tags per entry?\n\nOK = structured story fields\nCancel = simple free-text entries"
+    );
+    var newSection = wantsStory
+      ? { id: uid(), title: title.trim(), kind: "fields", defaultFieldLabels: DEFAULT_STORY_FIELD_LABELS.slice(), entries: [{ id: uid(), fields: defaultStoryFields(), tags: [] }] }
+      : { id: uid(), title: title.trim(), kind: "simple", entries: [{ id: uid(), text: "" }] };
+    state.sections.push(newSection);
+    state.activeId = newSection.id;
+    persist();
+    render();
+  }
+
+  function deleteSection(sectionId){
+    if (state.sections.length <= 1) return;
+    if (!window.confirm("Delete this entire section and everything in it?")) return;
+    state.sections = state.sections.filter(function(s){ return s.id !== sectionId; });
+    if (state.activeId === sectionId) state.activeId = state.sections[0].id;
+    persist();
+    render();
+  }
+
+  function setActive(id){
+    state.activeId = id;
+    state.openTagPanelFor = null;
+    render();
+  }
+
+  function resetToDefaults(){
+    if (!window.confirm("Reset everything back to the built-in starter content? This erases anything you've typed in this browser.")) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+    state.sections = JSON.parse(JSON.stringify(DEFAULT_SECTIONS));
+    state.tags = DEFAULT_TAGS.slice();
+    state.activeId = state.sections[0].id;
+    state.openTagPanelFor = null;
+    persist();
+    render();
+  }
+
+  function toggleCollapsed(){
+    state.collapsed = !state.collapsed;
+    render();
+  }
+
+  // ---- rendering ----
+  var app = document.getElementById("app");
+
+  function el(tag, attrs, children){
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if (k === "class") node.className = attrs[k];
+      else if (k === "text") node.textContent = attrs[k];
+      else if (k.indexOf("on") === 0) { /* handled separately */ }
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function(c){ if (c) node.appendChild(c); });
+    return node;
+  }
+
+  function renderSaveIndicator(){
+    var indicator = document.getElementById("save-indicator");
+    if (!indicator) return;
+    indicator.textContent = state.saveState === "saving" ? "Saving…" : "Saved to this browser";
+  }
+
+  function renderNavCounts(){
+    state.sections.forEach(function(s){
+      var countEl = document.getElementById("count-" + s.id);
+      if (countEl) countEl.textContent = s.entries.length;
+    });
+  }
+
+  function renderMissionClock(){
+    var valueEl = document.getElementById("mission-clock-value");
+    var subEl = document.getElementById("mission-clock-sub");
+    if (valueEl) valueEl.textContent = formatClock(allWordsTotal());
+    if (subEl) subEl.textContent = allWordsTotal() + " words · " + WORDS_PER_MINUTE + " wpm pace";
+  }
+
+  function renderFooters(){
+    var activeSection = getActiveSection();
+    activeSection.entries.forEach(function(entry){
+      var footer = document.getElementById("footer-" + entry.id);
+      if (!footer) return;
+      var words = entryWordTotal(activeSection, entry);
+      footer.innerHTML = "";
+      var wordsSpan = document.createElement("span");
+      wordsSpan.textContent = words + " word" + (words === 1 ? "" : "s");
+      var dot = document.createElement("span");
+      dot.className = "dot";
+      dot.textContent = "·";
+      var timeSpan = document.createElement("span");
+      timeSpan.textContent = "≈ " + formatSeconds(words);
+      footer.appendChild(wordsSpan);
+      footer.appendChild(dot);
+      footer.appendChild(timeSpan);
+    });
+  }
+
+  function render(){
+    app.innerHTML = "";
+    var activeSection = getActiveSection();
+
+    // ---------- sidebar ----------
+    var sidebar = el("aside", { class: "sidebar" + (state.collapsed ? " collapsed" : "") });
+
+    var header = el("div", { class: "sidebar-header" });
+    if (!state.collapsed){
+      var brandWrap = el("div", {});
+      brandWrap.appendChild(el("div", { class: "brand-mark", text: "IR" }));
+      brandWrap.appendChild(el("div", { class: "brand-title", text: "Interview Rocket" }));
+      brandWrap.appendChild(el("div", { class: "brand-sub", text: "Your prep workspace" }));
+      header.appendChild(brandWrap);
+    }
+    var collapseBtn = el("button", { class: "collapse-btn", "aria-label": "Toggle sidebar" , text: state.collapsed ? "\u203A" : "\u2039"});
+    collapseBtn.onclick = toggleCollapsed;
+    header.appendChild(collapseBtn);
+    sidebar.appendChild(header);
+
+    if (!state.collapsed){
+      var content = el("div", { class: "sidebar-content" });
+
+      var nav = el("nav", { class: "nav" });
+      state.sections.forEach(function(s){
+        var isActive = s.id === activeSection.id;
+        var btn = el("button", { class: "nav-item" + (isActive ? " active" : "") });
+        var label = el("span", { class: "nav-label", text: s.title });
+        var count = el("span", { class: "nav-count", id: "count-" + s.id, text: s.entries.length });
+        btn.appendChild(label);
+        btn.appendChild(count);
+        btn.onclick = function(id){ return function(){ setActive(id); }; }(s.id);
+        nav.appendChild(btn);
+      });
+      content.appendChild(nav);
+
+      var addSectionBtn = el("button", { class: "add-section-btn", text: "+ New section" });
+      addSectionBtn.onclick = addSection;
+      content.appendChild(addSectionBtn);
+
+      var missionClock = el("div", { class: "mission-clock" });
+      missionClock.appendChild(el("div", { class: "mission-clock-label", text: "Total runway" }));
+      missionClock.appendChild(el("div", { class: "mission-clock-value", id: "mission-clock-value", text: formatClock(allWordsTotal()) }));
+      missionClock.appendChild(el("div", { class: "mission-clock-sub", id: "mission-clock-sub", text: allWordsTotal() + " words · " + WORDS_PER_MINUTE + " wpm pace" }));
+      content.appendChild(missionClock);
+
+      sidebar.appendChild(content);
+    }
+
+    app.appendChild(sidebar);
+
+    // ---------- main ----------
+    var main = el("main", { class: "main" });
+
+    var mainHeader = el("div", { class: "main-header" });
+    var headingWrap = el("div", {});
+    headingWrap.appendChild(el("div", { class: "eyebrow", text: "INTERVIEW CHEATSHEET" }));
+    headingWrap.appendChild(el("h1", { class: "title", text: activeSection.title }));
+    mainHeader.appendChild(headingWrap);
+    mainHeader.appendChild(el("div", { class: "save-indicator", id: "save-indicator", text: state.saveState === "saving" ? "Saving…" : "Saved to this browser" }));
+    main.appendChild(mainHeader);
+
+    var entryList = el("div", { class: "entry-list" });
+
+    activeSection.entries.forEach(function(entry, idx){
+      var words = entryWordTotal(activeSection, entry);
+      var card = el("div", { class: "entry-card" });
+
+      var topRow = el("div", { class: "entry-top-row" });
+      topRow.appendChild(el("span", { class: "entry-index", text: String(idx + 1).padStart(2, "0") }));
+      var delBtn = el("button", { class: "delete-btn", "aria-label": "Delete entry", text: "Delete" });
+      delBtn.onclick = function(sectionId, entryId){ return function(){ deleteEntry(sectionId, entryId); }; }(activeSection.id, entry.id);
+      topRow.appendChild(delBtn);
+      card.appendChild(topRow);
+
+      if (activeSection.kind === "fields"){
+        // ---- tags row ----
+        var tagsRow = el("div", { class: "tags-row" });
+        (entry.tags || []).forEach(function(tagName){
+          var chip = el("span", { class: "tag-chip" });
+          chip.appendChild(el("span", { text: tagName }));
+          var removeTagBtn = el("button", { "aria-label": "Remove tag", text: "\u00D7" });
+          removeTagBtn.onclick = function(sectionId, entryId, tn){
+            return function(){ removeTagFromEntry(sectionId, entryId, tn); };
+          }(activeSection.id, entry.id, tagName);
+          chip.appendChild(removeTagBtn);
+          tagsRow.appendChild(chip);
+        });
+
+        var tagPanelWrap = el("div", { class: "tag-panel" });
+        var addTagBtn = el("button", { class: "add-tag-btn", text: "+ Tag" });
+        addTagBtn.onclick = function(entryId){ return function(){ toggleTagPanel(entryId); }; }(entry.id);
+        tagPanelWrap.appendChild(addTagBtn);
+
+        if (state.openTagPanelFor === entry.id){
+          var popover = el("div", { class: "tag-panel-popover" });
+          var list = el("div", { class: "tag-panel-list" });
+          var availableTags = state.tags.filter(function(t){ return (entry.tags || []).indexOf(t) === -1; });
+          if (availableTags.length === 0){
+            list.appendChild(el("div", { text: "No more tags \u2014 add one below." }));
+            list.lastChild.style.fontSize = "12px";
+            list.lastChild.style.color = "#6B7680";
+            list.lastChild.style.padding = "4px 6px";
+          }
+          availableTags.forEach(function(tagName){
+            var item = el("div", { class: "tag-panel-item" });
+            var nameBtn = el("button", { class: "tag-panel-item-name", text: tagName });
+            nameBtn.onclick = function(sectionId, entryId, tn){
+              return function(){ addTagToEntry(sectionId, entryId, tn); };
+            }(activeSection.id, entry.id, tagName);
+            var delTagBtn = el("button", { class: "tag-panel-item-del", "aria-label": "Delete tag from list", text: "Delete" });
+            delTagBtn.onclick = function(tn){ return function(ev){ ev.stopPropagation(); deleteGlobalTag(tn); }; }(tagName);
+            item.appendChild(nameBtn);
+            item.appendChild(delTagBtn);
+            list.appendChild(item);
+          });
+          popover.appendChild(list);
+
+          var newRow = el("div", { class: "tag-panel-new" });
+          var newInput = document.createElement("input");
+          newInput.type = "text";
+          newInput.placeholder = "New tag name";
+          var newBtn = el("button", { text: "Add" });
+          var submitNewTag = function(sectionId, entryId){
+            return function(){
+              createAndAddTag(sectionId, entryId, newInput.value);
+            };
+          }(activeSection.id, entry.id);
+          newBtn.onclick = submitNewTag;
+          newInput.onkeydown = function(e){ if (e.key === "Enter"){ e.preventDefault(); submitNewTag(); } };
+          newRow.appendChild(newInput);
+          newRow.appendChild(newBtn);
+          popover.appendChild(newRow);
+
+          tagPanelWrap.appendChild(popover);
+        }
+        tagsRow.appendChild(tagPanelWrap);
+        card.appendChild(tagsRow);
+
+        // ---- story fields ----
+        (entry.fields || []).forEach(function(field){
+          var block = el("div", { class: "field-block" });
+          var fieldTop = el("div", { class: "field-top-row" });
+          fieldTop.appendChild(el("span", { class: "field-label", text: field.label }));
+          var removeFieldBtn = el("button", { class: "field-remove-btn", "aria-label": "Remove this section", text: "Remove" });
+          removeFieldBtn.onclick = function(sectionId, entryId, fieldId){
+            return function(){ removeStoryField(sectionId, entryId, fieldId); };
+          }(activeSection.id, entry.id, field.id);
+          fieldTop.appendChild(removeFieldBtn);
+          block.appendChild(fieldTop);
+
+          var fieldTextarea = document.createElement("textarea");
+          fieldTextarea.className = "field-text";
+          fieldTextarea.rows = 3;
+          fieldTextarea.placeholder = "Write here...";
+          fieldTextarea.value = field.text;
+          fieldTextarea.oninput = function(sectionId, entryId, fieldId){
+            return function(e){ updateStoryField(sectionId, entryId, fieldId, e.target.value); };
+          }(activeSection.id, entry.id, field.id);
+          block.appendChild(fieldTextarea);
+
+          card.appendChild(block);
+        });
+
+        var addFieldBtn = el("button", { class: "add-field-btn", text: "+ Add section" });
+        addFieldBtn.onclick = function(sectionId, entryId){
+          return function(){ addStoryField(sectionId, entryId); };
+        }(activeSection.id, entry.id);
+        card.appendChild(addFieldBtn);
+      } else {
+        var textarea = document.createElement("textarea");
+        textarea.className = "entry-text";
+        textarea.rows = 5;
+        textarea.placeholder = PLACEHOLDERS[activeSection.id] || "Start writing...";
+        textarea.value = entry.text;
+        textarea.oninput = function(sectionId, entryId){
+          return function(e){ updateEntry(sectionId, entryId, e.target.value); };
+        }(activeSection.id, entry.id);
+        card.appendChild(textarea);
+      }
+
+      var footer = el("div", { class: "entry-footer", id: "footer-" + entry.id });
+      footer.appendChild(el("span", { text: words + " word" + (words === 1 ? "" : "s") }));
+      footer.appendChild(el("span", { class: "dot", text: "\u00B7" }));
+      footer.appendChild(el("span", { text: "\u2248 " + formatSeconds(words) }));
+      card.appendChild(footer);
+
+      entryList.appendChild(card);
+    });
+
+    var addEntryBtn = el("button", { class: "add-entry-btn", text: "+ Add entry" });
+    addEntryBtn.onclick = function(){ addEntry(activeSection.id); };
+    entryList.appendChild(addEntryBtn);
+
+    if (state.sections.length > 1){
+      var deleteSectionBtn = el("button", { class: "delete-section-btn", text: "Delete \"" + activeSection.title + "\" section" });
+      deleteSectionBtn.onclick = function(){ deleteSection(activeSection.id); };
+      entryList.appendChild(deleteSectionBtn);
+    }
+
+    main.appendChild(entryList);
+
+    var note = el("div", { class: "footer-note", text: "Saved automatically in this browser only. Clearing your browser data will erase it. " });
+    var resetLink = el("button", { text: "Reset to latest content" });
+    resetLink.style.background = "transparent";
+    resetLink.style.border = "none";
+    resetLink.style.color = "var(--muted)";
+    resetLink.style.textDecoration = "underline";
+    resetLink.style.textUnderlineOffset = "2px";
+    resetLink.style.fontFamily = "'JetBrains Mono', monospace";
+    resetLink.style.fontSize = "11.5px";
+    resetLink.style.padding = "0";
+    resetLink.onclick = resetToDefaults;
+    note.appendChild(resetLink);
+    main.appendChild(note);
+
+    app.appendChild(main);
+  }
+
+  try {
+    render();
+  } catch (e){
+    // Saved data from an older version of the app was incompatible and crashed
+    // the render — fall back to the built-in defaults instead of a blank page.
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e2){}
+    state.sections = JSON.parse(JSON.stringify(DEFAULT_SECTIONS));
+    state.tags = DEFAULT_TAGS.slice();
+    state.activeId = state.sections[0].id;
+    render();
+  }
+})();
+</script>
+</body>
+</html>
